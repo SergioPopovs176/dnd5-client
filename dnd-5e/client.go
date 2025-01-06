@@ -3,6 +3,7 @@ package dnd5e
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -26,12 +27,12 @@ func NewClient(timeout time.Duration) (*Client, error) {
 			// 	next:   http.DefaultTransport,
 			// },
 		},
-		apiUrl: "https://www.dnd5eapi.co/api/",
+		apiUrl: "https://www.dnd5eapi.co/api/monsters",
 	}, nil
 }
 
-func (c Client) GetMonsters() ([]Monster, error) {
-	res, err := c.client.Get("https://www.dnd5eapi.co/api/monsters")
+func (c Client) GetMonsters() ([]MonsterShot, error) {
+	res, err := c.client.Get(c.apiUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -48,4 +49,25 @@ func (c Client) GetMonsters() ([]Monster, error) {
 	}
 
 	return r.Monsters, nil
+}
+
+func (c Client) GetMonster(index string) (MonsterFullResponse, error) {
+	url := fmt.Sprintf("%s/%s", c.apiUrl, index)
+	res, err := c.client.Get(url)
+	if err != nil {
+		return MonsterFullResponse{}, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return MonsterFullResponse{}, err
+	}
+
+	var r MonsterFullResponse
+	if err = json.Unmarshal(body, &r); err != nil {
+		return MonsterFullResponse{}, err
+	}
+
+	return r, nil
 }

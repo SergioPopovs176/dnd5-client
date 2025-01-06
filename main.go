@@ -16,10 +16,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	monsters, err := client.GetMonsters()
+	// monsters, err := client.GetMonsters()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Println(monsters)
+
+	monster, err := client.GetMonster("werewolf-hybrid")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(monsters)
+	fmt.Println(monster.Info())
 }
